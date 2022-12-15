@@ -31,7 +31,7 @@ class Query:
 
     _last_item_id: str = field(init=False, default=None)
 
-    async def check(self, ses: httpx.AsyncClient):
+    async def check(self, ses: httpx.AsyncClient) -> list[Producto]:
         r = await ses.request("GET", URL, headers=HEADERS, params=self._build_params())
         r = r.json()
 
@@ -45,7 +45,8 @@ class Query:
                 item["images"][0]["medium"],
                 item["price"],
                 item["supports_shipping"] and item["shipping_allowed"],
-                item["location"]["city"]
+                item["location"]["city"],
+                item["web_slug"]
             ))
         
         # actualizamos el valor de la ultima id para que no vuelva a detectarlos
