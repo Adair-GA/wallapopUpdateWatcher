@@ -4,6 +4,9 @@ from collections import deque
 from pathlib import Path
 import pickle
 from .query import Query
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # tiempo total de espera en minutos (por cada request)
@@ -54,7 +57,9 @@ class UpdateWatcher:
         return id(q)
 
     async def checkOperation(self, args: list):
-        
+        """
+        Realiza la comprobacion de la proxima query en la lista y llama al callback si hay productos nuevos 
+        """
         async with httpx.AsyncClient() as client:
             q = self._queries_queue.popleft()
             if id(q) in self._a_eliminar:
@@ -81,10 +86,21 @@ class UpdateWatcher:
             pickle.dump(q,f)
 
     def remove(self, ident: Query):
+        """
+        Elimina una query de la lista a comprobar
+        """
         self._a_eliminar.add(ident)
 
     def getWaitTime(self) -> float:
-        return (ESPERA*60)/len(self._queries_queue)
+        """
+        Devuelve el tiempo en segundos que se debe de esperar hasta ejecutar la siguiente comprobacion. 
+        """
+        try:
+            return (ESPERA*60)/len(self._queries_queue)
+        except ZeroDivisionError:
+            logger.warn("Se ha intentado llamar al metodo getWaitTime sin queries. Se ha de evitar esto")
+            return 0
+            
 
     def __init__(self, callback: Callable, espera: float = ESPERA) -> None:
         """
