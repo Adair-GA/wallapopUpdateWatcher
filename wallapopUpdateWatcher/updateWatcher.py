@@ -22,14 +22,13 @@ class UpdateWatcher:
 
     # contiene las queries a realizar    
     _queries_queue: deque[Query] = deque()
-    _a_eliminar = set()
 
     async def create(self,
                 keywords: str,
                 lat_lon: tuple[int,int] | None = None,
-                min_max_sale_price: tuple[int,int] | None = None) -> int:
+                min_max_sale_price: tuple[int,int] | None = None) -> Query:
         """
-        Añade la querie a la lista a comprobar y devuelve el identificador con el que se llamara al callback cuando haya un nuevo producto
+        Añade la querie a la lista a comprobar y devuelve un objeto Query
         **Parametros:**
 
         * **keywords** -  Palabras que usar en la busqueda
@@ -54,7 +53,7 @@ class UpdateWatcher:
         self._queries_queue.append(q)
         self.espera = self.getWaitTime()
 
-        return id(q)
+        return q
 
     async def checkOperation(self, args: list):
         """
@@ -62,34 +61,25 @@ class UpdateWatcher:
         """
         async with httpx.AsyncClient() as client:
             q = self._queries_queue.popleft()
-            if id(q) in self._a_eliminar:
-                return
-                # la query ni se comprueba ni se vuelve a añadir a la lista
-
             result = await q.check(client)
-            if result:
-                await self._callback(id(q),result,*args)
-            
-            self._queries_queue.append(q)
+
+        if result:
+            await self._callback(q,result,*args)
+        
+        #se vuelve a añadir al final para que se vuelva a ciclar la lista completa antes de volver a comprobarse
+        self._queries_queue.append(q)
 
     def load_queries_from_file(self, path: Path):
         with open(path, "rb") as f:
             self._queries_queue = pickle.load(f)
 
     def save_queries(self, path: Path):   
-        save = [item for item in self._queries_queue if id(item) not in self._a_eliminar]
-
-        q = deque(save)
-
         path.touch(exist_ok=True)
         with open(path,"wb") as f:
-            pickle.dump(q,f)
+            pickle.dump(self._queries_queue,f)
 
     def remove(self, ident: Query):
-        """
-        Elimina una query de la lista a comprobar
-        """
-        self._a_eliminar.add(ident)
+        self._queries_queue.remove(ident)
 
     def getWaitTime(self) -> float:
         """
@@ -108,9 +98,12 @@ class UpdateWatcher:
         **Parametros:**
 
         * **callback** -  La funcion que se llamara cada vez que se detecte un nuevo producto. Se le pasaran como parametros
-        la una lista de productos 
-        * **espera** - (opcional) El tiempo en minutos entre cada comprobacion por cada alerta añadida. 5 minutos por defecto, es
-        decir, si hay solo una alerta, se comprobará cada 5 minutos, si hay dos, se comprobara la primera y 2,5 minutos despues, la segunda,
-        manteniendo entonces los 5 minutos por alerta 
+        una lista de productos.
+        * **espera** - (opcional) El tiempo en minutos entre cada comprobacion por cada alerta añadida. 15 minutos por defecto, es
+        decir, si hay solo una alerta, se comprobará cada 15 minutos, si hay dos, se comprobara la primera y 7,5 minutos despues, la segunda,
+        manteniendo entonces los 15 minutos por alerta 
         """
         self._callback = callback
+
+    def __len__(self) -> int:
+        return len(self._queries_queue)
