@@ -54,7 +54,7 @@ class UpdateWatcher:
 
         return q
 
-    async def checkOperation(self, args: list):
+    async def checkOperation(self, *args):
         """
         Realiza la comprobacion de la proxima query en la lista y llama al callback si hay productos nuevos 
         """
@@ -87,7 +87,7 @@ class UpdateWatcher:
         try:
             return (self.espera*60)/len(self._queries_queue)
         except ZeroDivisionError:
-            logger.warn("Se ha intentado llamar al metodo getWaitTime sin queries. Se ha de evitar esto")
+            logger.warning("Se ha intentado llamar al metodo getWaitTime sin queries. Se ha de evitar esto")
             return 0
             
 
