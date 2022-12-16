@@ -86,7 +86,7 @@ class UpdateWatcher:
         Devuelve el tiempo en segundos que se debe de esperar hasta ejecutar la siguiente comprobacion. 
         """
         try:
-            return (ESPERA*60)/len(self._queries_queue)
+            return (self.espera*60)/len(self._queries_queue)
         except ZeroDivisionError:
             logger.warn("Se ha intentado llamar al metodo getWaitTime sin queries. Se ha de evitar esto")
             return 0
@@ -103,6 +103,7 @@ class UpdateWatcher:
         decir, si hay solo una alerta, se comprobará cada 15 minutos, si hay dos, se comprobara la primera y 7,5 minutos despues, la segunda,
         manteniendo entonces los 15 minutos por alerta 
         """
+        self.espera = espera
         self._callback = callback
 
     def __len__(self) -> int:
