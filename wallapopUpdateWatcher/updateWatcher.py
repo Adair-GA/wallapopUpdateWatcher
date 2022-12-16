@@ -21,7 +21,7 @@ class UpdateWatcher:
     espera: float
 
     # contiene las queries a realizar    
-    _queries_queue: deque[Query] = deque()
+    _queries_queue: deque[Query]
 
     async def create(self,
                 keywords: str,
@@ -51,7 +51,6 @@ class UpdateWatcher:
         async with httpx.AsyncClient() as ses:
             await q.check(ses)
         self._queries_queue.append(q)
-        self.espera = self.getWaitTime()
 
         return q
 
@@ -103,6 +102,7 @@ class UpdateWatcher:
         decir, si hay solo una alerta, se comprobará cada 15 minutos, si hay dos, se comprobara la primera y 7,5 minutos despues, la segunda,
         manteniendo entonces los 15 minutos por alerta 
         """
+        self._queries_queue = deque()
         self.espera = espera
         self._callback = callback
 
