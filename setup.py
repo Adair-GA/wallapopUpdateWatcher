@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import setup,find_packages
 
 
-VERSION = '0.0.1'
-DESCRIPTION = 'An library to watch for new items at wallapop.es '
+VERSION = '0.0.2'
+DESCRIPTION = 'A library to watch for new items at wallapop.es '
 LONG_DESCRIPTION = 'A package that allows to create alerts that will trigger a callback when a new product meeting that criteria appears on Wallapop.'
 
 # Setting up
@@ -15,5 +15,16 @@ setup(
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=['httpx'],
-
+    classifiers=[
+    'Development Status :: 4 - Beta',
+    'Intended Audience :: Developers',
+    'Topic :: Software Development',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+    ],
+    keywords="wallapop api updates",
+    project_urls={
+    'Source': 'https://github.com/Adair-GA/wallapopUpdateWatcher',
+    'Tracker': 'https://github.com/Adair-GA/wallapopUpdateWatcher/issues',
+    },
+    python_requires='>=3'
 )
