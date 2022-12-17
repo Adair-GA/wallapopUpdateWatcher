@@ -25,7 +25,7 @@ class UpdateWatcher:
 
     async def create(self,
                 keywords: str,
-                lat_lon: tuple[int,int] | None = None,
+                # lat_lon: tuple[int,int] | None = None,
                 min_max_sale_price: tuple[int,int] | None = None) -> Query:
         """
         Añade la querie a la lista a comprobar y devuelve un objeto Query
@@ -36,11 +36,15 @@ class UpdateWatcher:
         * **min_max_sale_price** - (opcional) Precio minimo y maximo (tuple de enteros)
         """
 
-        if not lat_lon:
-            latitude="40.41956"
-            longitude= "-3.69196"
-        else:
-            latitude,longitude = map(str,lat_lon)
+        # if not lat_lon:
+            # latitude="40.41956"
+            # longitude= "-3.69196"
+        # else:
+        #     latitude,longitude = map(str,lat_lon)
+
+        latitude="40.41956"
+        longitude= "-3.69196"
+
 
         if min_max_sale_price:
             min_sale_price,max_sale_price = min_max_sale_price
