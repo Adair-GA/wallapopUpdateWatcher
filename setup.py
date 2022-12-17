@@ -1,7 +1,9 @@
 from setuptools import setup,find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 DESCRIPTION = 'A library to watch for new items at wallapop.es '
 LONG_DESCRIPTION = 'A package that allows to create alerts that will trigger a callback when a new product meeting that criteria appears on Wallapop.'
 
@@ -12,6 +14,7 @@ setup(
     author="Adair Gondan",
     author_email="<adairyves@gmail.com>",
     description=DESCRIPTION,
+    long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(),
     install_requires=['httpx'],
