@@ -8,17 +8,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-# tiempo total de espera en minutos (por cada request)
-ESPERA = 15
-
-
 class UpdateWatcher:
+    """Clase que se encarga de facilitar la comparacion de resultados de busquedas en wallapop, para detectar nuevos productos que se hayan añadido
+    Esto es util para poder detectr productos baratos a tiempo, ya que las notificaciones de wallapop no funcionan bien
+    """
     # funcion que se llamará (con el id de la query que la ha activado y una lista de nuevos productos) cada vez
     # que se encuentren nuevos resultados
     callback: Callable
-    
-    espera: float
 
     # contiene las queries a realizar    
     _queries_queue: deque[Query]
@@ -28,7 +24,7 @@ class UpdateWatcher:
                 # lat_lon: tuple[int,int] | None = None,
                 min_max_sale_price: tuple[int,int] | None = None) -> Query:
         """
-        Añade la querie a la lista a comprobar y devuelve un objeto Query
+        Añade la querie a la lista a comprobar y devuelve un objeto Query correspondiente a la misma
         **Parametros:**
 
         * **keywords** -  Palabras que usar en la busqueda
@@ -59,9 +55,11 @@ class UpdateWatcher:
         return q
 
     async def checkOperation(self, *args):
-        """
-        Realiza la comprobacion de la proxima query en la lista y llama al callback si hay productos nuevos 
-        """
+        """Comprueba si hay nuevos resultados para la siguiente query en la lista.
+
+        Args:
+            args * :Argumentos que se le pasaran a la funcion callback
+        """        
         async with httpx.AsyncClient() as client:
             q = self._queries_queue.popleft()
             result = await q.check(client)
@@ -73,41 +71,41 @@ class UpdateWatcher:
         self._queries_queue.append(q)
 
     def load_queries_from_file(self, path: Path):
+        """Cargo las queries desde un archivo
+
+        Args:
+            path (Path): Path del archivo a cargar
+        """
         with open(path, "rb") as f:
             self._queries_queue = pickle.load(f)
 
-    def save_queries(self, path: Path):   
+    def save_queries(self, path: Path):
+        """Guarda las queries en un archivo
+
+        Args:
+            path (Path): Path del archivo
+        """
         path.touch(exist_ok=True)
         with open(path,"wb") as f:
             pickle.dump(self._queries_queue,f)
 
     def remove(self, ident: Query):
+        """Elimina una query de la lista de queries a comprobar
+
+        Args:
+            ident (Query): query a eliminar
+        """
         self._queries_queue.remove(ident)
 
-    def getWaitTime(self) -> float:
+    def __init__(self, callback: Callable) -> None:
         """
-        Devuelve el tiempo en segundos que se debe de esperar hasta ejecutar la siguiente comprobacion. 
-        """
-        try:
-            return (self.espera*60)/len(self._queries_queue)
-        except ZeroDivisionError:
-            logger.warning("Se ha intentado llamar al metodo getWaitTime sin queries. Se ha de evitar esto")
-            return 0
-            
-
-    def __init__(self, callback: Callable, espera: float = ESPERA) -> None:
-        """
-        Crea el watcher de novedaes
+        Crea un objeto UpdateWatcher que se encargara de comprobar las queries que se le pasen y llamar a la funcion cuando se encuentren nuevos productos
         **Parametros:**
 
         * **callback** -  La funcion que se llamara cada vez que se detecte un nuevo producto. Se le pasaran como parametros
         una lista de productos.
-        * **espera** - (opcional) El tiempo en minutos entre cada comprobacion por cada alerta añadida. 15 minutos por defecto, es
-        decir, si hay solo una alerta, se comprobará cada 15 minutos, si hay dos, se comprobara la primera y 7,5 minutos despues, la segunda,
-        manteniendo entonces los 15 minutos por alerta 
         """
         self._queries_queue = deque()
-        self.espera = espera
         self._callback = callback
 
     def __len__(self) -> int:

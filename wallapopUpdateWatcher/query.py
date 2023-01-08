@@ -32,6 +32,14 @@ class Query:
     _last_item_id: str = field(init=False, default=None)
 
     async def check(self, ses: httpx.AsyncClient) -> list[Producto]:
+        """Comprueba si hay nuevos resultados para la query.
+
+        Args:
+            ses (httpx.AsyncClient): Sesion httpx para utilizar
+
+        Returns:
+            list[Producto]: Lista de productos nuevos que se encuentren para la query
+        """        
         r = await ses.request("GET", URL, headers=HEADERS, params=self._build_params())
         r = r.json()
 
@@ -56,7 +64,12 @@ class Query:
         
         return ret
 
-    def _build_params(self):
+    def _build_params(self)->dict:
+        """Construye los parametros para la peticion de la query
+
+        Returns:
+            dict: Diccionario con los parametros
+        """        
         p = {
             "latitude": self.latitude,
             "longitude": self.longitude,

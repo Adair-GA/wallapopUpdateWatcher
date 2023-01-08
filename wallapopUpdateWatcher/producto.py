@@ -12,6 +12,8 @@ class Producto:
     link: str
 
     def __post_init__(self) -> None:
+        """Limita la descripcion a 60 caracteres y añade el link completo
+        """
         if self.description is not None and len(self.description)>60:
             self.description = self.description[:60] + '...' 
 
@@ -19,6 +21,11 @@ class Producto:
 
 
     def msg(self) -> str:
+        """Genera el mensaje que se enviara al usuario para alertarle de un nuevo producto
+
+        Returns:
+            str: mensaje
+        """        
         envio = "Si" if self.shippable else "No"
         
         if self.description is None:
