@@ -36,7 +36,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     
     watcher = UpdateWatcher(print)
     assert len(watcher) == 0
-    q = await watcher.create("Test",None,None)
+    q = await watcher.create("Test",None)
 
     assert q.keywords=="Test"
     assert q.max_sale_price==None
@@ -49,7 +49,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
 
     # comprobar precios
 
-    q = await watcher.create("Test2",None,(15,30))
+    q = await watcher.create("Test2",(15,30))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
@@ -58,14 +58,14 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
 
 
 
-    q = await watcher.create("Test2",None,(None,30))
+    q = await watcher.create("Test2",(None,30))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==None
     assert q.max_sale_price==30
     assert q._last_item_id==None
     
-    q = await watcher.create("Test2",None,(15,None))
+    q = await watcher.create("Test2",(15,None))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
@@ -79,7 +79,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
 
     add(res,1)
     httpx_mock.add_response(200,json=res, url=pat)
-    q = await watcher.create("Test2",None,None)
+    q = await watcher.create("Test2",None)
 
     assert q.keywords=="Test2"
     assert q.max_sale_price==None
@@ -91,7 +91,7 @@ async def test_updateWatcher_remove():
     watcher = UpdateWatcher(print)
     assert len(watcher)==0
 
-    q = await watcher.create("Test",None,None)
+    q = await watcher.create("Test",None)
     assert len(watcher)==1
     assert q in watcher._queries_queue
 
@@ -105,10 +105,10 @@ async def test_updateWatcher_getWaitTime():
     watcher = UpdateWatcher(print)
     assert watcher.getWaitTime() == 0
 
-    await watcher.create("Test",None,None)
+    await watcher.create("Test",None)
     assert watcher.getWaitTime() == 15*60
 
-    q = await watcher.create("Test2",None,None)
+    q = await watcher.create("Test2",None)
     assert watcher.getWaitTime() == (15*60)/2
 
     watcher.remove(q)
@@ -119,10 +119,10 @@ async def test_updateWatcher_getWaitTime():
     watcher=UpdateWatcher(print,5)
     assert watcher.getWaitTime() == 0
 
-    await watcher.create("Test",None,None)
+    await watcher.create("Test",None)
     assert watcher.getWaitTime() == 5*60
 
-    q = await watcher.create("Test2",None,None)
+    q = await watcher.create("Test2",None)
     assert watcher.getWaitTime() == (5*60)/2
 
     watcher.remove(q)
@@ -177,8 +177,8 @@ async def test_updateWatcher_check(httpx_mock: HTTPXMock):
 
     watcher = UpdateWatcher(callback)
 
-    q1 = await watcher.create("Test1",None,None)
-    q2 = await watcher.create("Test2",None,None)
+    q1 = await watcher.create("Test1",None)
+    q2 = await watcher.create("Test2",None)
 
     add(res_1,1)
     httpx_mock.add_response(200,json=res_1, url=pattern_1)
