@@ -5,6 +5,7 @@ from pathlib import Path
 import pickle
 from .query import Query
 import logging
+from asyncio import iscoroutinefunction
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,6 @@ class UpdateWatcher:
         **Parametros:**
 
         * **keywords** -  Palabras que usar en la busqueda
-        * **lat_lon** - (opcional) Tuple de latitud y longitud en las que buscar. Si no se establece se usara Madrid
         * **min_max_sale_price** - (opcional) Precio minimo y maximo (tuple de enteros)
         """
 
@@ -65,7 +65,10 @@ class UpdateWatcher:
             result = await q.check(client)
 
         if result:
-            await self._callback(q,result,*args)
+            if iscoroutinefunction(self._callback):
+                await self._callback(q,result,*args)
+            else:
+                self._callback(q,result,*args)
         
         #se vuelve a añadir al final para que se vuelva a ciclar la lista completa antes de volver a comprobarse
         self._queries_queue.append(q)
