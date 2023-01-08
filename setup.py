@@ -3,7 +3,7 @@ from setuptools import setup,find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-VERSION = '0.0.3'
+VERSION = '0.0.5'
 DESCRIPTION = 'A library to watch for new items at wallapop.es '
 LONG_DESCRIPTION = 'A package that allows to create alerts that will trigger a callback when a new product meeting that criteria appears on Wallapop.'
 
