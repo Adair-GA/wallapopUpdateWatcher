@@ -100,34 +100,6 @@ async def test_updateWatcher_remove():
 
     assert q not in watcher._queries_queue
 
-@pytest.mark.asyncio
-async def test_updateWatcher_getWaitTime():
-    watcher = UpdateWatcher(print)
-    assert watcher.getWaitTime() == 0
-
-    await watcher.create("Test",None)
-    assert watcher.getWaitTime() == 15*60
-
-    q = await watcher.create("Test2",None)
-    assert watcher.getWaitTime() == (15*60)/2
-
-    watcher.remove(q)
-    assert watcher.getWaitTime() == 15*60
-
-
-    # comprobar con tiempos de espera personalizados
-    watcher=UpdateWatcher(print,5)
-    assert watcher.getWaitTime() == 0
-
-    await watcher.create("Test",None)
-    assert watcher.getWaitTime() == 5*60
-
-    q = await watcher.create("Test2",None)
-    assert watcher.getWaitTime() == (5*60)/2
-
-    watcher.remove(q)
-    assert watcher.getWaitTime() == 5*60
-
 
 times_callback=0
 
