@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wallapopUpdateWatcher"
-version = "0.0.5"
+version = "0.0.7"
 description = "A library to watch for new items at wallapop.es"
 authors = ["Adair-GA <adairyves@gmail.com>"]
 license = "GNU General Public License v3 (GPLv3)"
@@ -15,10 +15,11 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.7"
 httpx = "^0.23.3"
 
 [tool.poetry.group.test.dependencies]
+pytest-asyncio = "^0.16.0"
 pytest-httpx = "^0.21.2"
 pytest = "^7.2.0"
 

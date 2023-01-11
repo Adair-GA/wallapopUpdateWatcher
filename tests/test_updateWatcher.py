@@ -3,7 +3,29 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 import re
+import pathlib
+import pickle
 
+times_callback=0
+def add(d: dict, n: int):
+    d["search_objects"].append({
+        "id": f"{n}",
+        "title": f"Test{n}",
+        "description": f"Test{n}",
+        "images": [
+            {
+                "medium": f"image{n}"
+            }
+        ],
+        "price": 400/n,
+        "currency": "EUR",
+        "web_slug": f"test{n}",
+        "supports_shipping": True,
+        "shipping_allowed": True,
+        "location": {
+            "city": f"Mad{n}"
+        }
+    })
 
 @pytest.mark.asyncio
 async def test_updateWatcher_create(httpx_mock: HTTPXMock):
@@ -11,26 +33,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
         "search_objects": [
         ]
     }
-    def add(d: dict, n: int):
-        d["search_objects"].append({
-            "id": f"{n}",
-            "title": f"Test{n}",
-            "description": f"Test{n}",
-            "images": [
-                {
-                    "medium": f"image{n}"
-                }
-            ],
-            "price": 400/n,
-            "currency": "EUR",
-            "web_slug": f"test{n}",
-            "supports_shipping": True,
-            "shipping_allowed": True,
-            "location": {
-                "city": f"Mad{n}"
-            }
-        })
-    
+
     pat = re.compile("https://api.wallapop.com/api/v3/general/search.*")
     httpx_mock.add_response(200,json=res, url=pat)
     
@@ -100,9 +103,6 @@ async def test_updateWatcher_remove():
 
     assert q not in watcher._queries_queue
 
-
-times_callback=0
-
 @pytest.mark.asyncio
 async def test_updateWatcher_check(httpx_mock: HTTPXMock):
     res_1 = {
@@ -113,25 +113,6 @@ async def test_updateWatcher_check(httpx_mock: HTTPXMock):
         "search_objects": [
         ]
     }
-    def add(d: dict, n: int):
-        d["search_objects"].append({
-            "id": f"{n}",
-            "title": f"Test{n}",
-            "description": f"Test{n}",
-            "images": [
-                {
-                    "medium": f"image{n}"
-                }
-            ],
-            "price": 400/n,
-            "currency": "EUR",
-            "web_slug": f"test{n}",
-            "supports_shipping": True,
-            "shipping_allowed": True,
-            "location": {
-                "city": f"Mad{n}"
-            }
-        })
     global times_callback
 
     async def callback(q: Query,result, should_be: Query):
@@ -170,3 +151,68 @@ async def test_updateWatcher_check(httpx_mock: HTTPXMock):
     await watcher.checkOperation(q2)
     assert times_callback==2
 
+@pytest.mark.asyncio
+async def test_updateWatcher_save_and_load(httpx_mock: HTTPXMock):
+    p = pathlib.Path("tests/test.pickle")
+
+    if p.exists():
+        p.unlink()
+
+    assert not p.exists()
+
+    res = {
+        "search_objects": [
+        ]
+    }
+
+    pat = re.compile("https://api.wallapop.com/api/v3/general/search.*")
+    httpx_mock.add_response(200,json=res, url=pat)
+    
+    watcher = UpdateWatcher(print)
+    assert len(watcher) == 0
+    await watcher.create("Test",None)
+    assert len(watcher) == 1
+    watcher.save_queries(p)
+    assert p.exists()
+
+    load = pickle.load(open(p,"rb"))
+    assert len(load) == 1
+    assert load[0].keywords == "Test"
+    assert load[0].min_sale_price == None
+    assert load[0].max_sale_price == None
+
+    del watcher
+    watcher = UpdateWatcher(print)
+    watcher.load_queries_from_file(p)
+    q = watcher._queries_queue[0]
+
+    assert q.keywords=="Test"
+    assert q.min_sale_price==None
+    assert q.max_sale_price==None
+
+
+    await watcher.create("Test2",None)
+    await watcher.checkOperation()
+    await watcher.checkOperation()
+    await watcher.checkOperation()
+    await watcher.checkOperation()
+    await watcher.checkOperation()
+    assert len(watcher) == 2
+
+    watcher.save_queries(p)
+    assert p.exists()
+
+    load = pickle.load(open(p,"rb"))
+    assert len(load) == 2
+    assert load[0].keywords == "Test" or load[1].keywords == "Test"
+    assert load[0].min_sale_price == None
+    assert load[0].max_sale_price == None
+
+    del watcher
+    watcher = UpdateWatcher(print)
+    watcher.load_queries_from_file(p)
+    q = watcher._queries_queue[0]
+
+    assert q.keywords=="Test" or q.keywords=="Test2"
+    assert q.min_sale_price==None
+    assert q.max_sale_price==None
