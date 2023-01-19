@@ -78,11 +78,11 @@ class Query:
         if self.max_sale_price:
             if self.min_sale_price:
                 return hash(
-                    f"walla{self.keywords}{self.latitude}{self.longitude}{self.max_sale_price}{self.min_sale_price}")
+                    f"walla{self.keywords}{self.max_sale_price}{self.min_sale_price}{self.strategy.__class__.__name__}")
             else:
-                return hash(f"walla{self.keywords}{self.latitude}{self.longitude}{self.max_sale_price}")
+                return hash(f"walla{self.keywords}{self.max_sale_price}{self.strategy.__class__.__name__}")
         else:
             if self.min_sale_price:
-                return hash(f"walla{self.keywords}{self.latitude}{self.longitude}{self.min_sale_price}")
+                return hash(f"walla{self.keywords}{self.min_sale_price}{self.strategy.__class__.__name__}")
             else:
-                return hash(f"walla{self.keywords}{self.latitude}{self.longitude}")
+                return hash(f"walla{self.keywords}{self.strategy.__class__.__name__}")
