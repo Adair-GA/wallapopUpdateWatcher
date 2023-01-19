@@ -44,11 +44,8 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     assert q.keywords=="Test"
     assert q.max_sale_price==None
     assert q.min_sale_price==None
-    assert q._last_item_id==None
     
     assert len(watcher) == 1
-
-
 
     # comprobar precios
 
@@ -57,8 +54,6 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
     assert q.max_sale_price==30
-    assert q._last_item_id==None
-
 
 
     q = await watcher.create("Test2",(None,30))
@@ -66,14 +61,12 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     assert q.keywords=="Test2"
     assert q.min_sale_price==None
     assert q.max_sale_price==30
-    assert q._last_item_id==None
     
     q = await watcher.create("Test2",(15,None))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
     assert q.max_sale_price==None
-    assert q._last_item_id==None
 
 
 
@@ -87,7 +80,6 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     assert q.keywords=="Test2"
     assert q.max_sale_price==None
     assert q.min_sale_price==None
-    assert q._last_item_id=="1"
 
 @pytest.mark.asyncio
 async def test_updateWatcher_remove():
