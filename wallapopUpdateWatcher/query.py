@@ -2,6 +2,7 @@ from dataclasses import dataclass,field
 from typing import Optional
 import httpx
 from .producto import Producto
+from .strategies import Strategy
 
 URL = "https://api.wallapop.com/api/v3/general/search"
 
@@ -28,8 +29,8 @@ class Query:
     keywords: str
     min_sale_price: Optional[int]
     max_sale_price: Optional[int]
+    strategy: Strategy
 
-    _last_item_id: str = field(init=False, default=None)
 
     async def check(self, ses: httpx.AsyncClient) -> list[Producto]:
         """Comprueba si hay nuevos resultados para la query.
@@ -45,22 +46,9 @@ class Query:
 
         ret = []
         for item in r["search_objects"]:
-            if item["id"] == self._last_item_id:
-                break
-            ret.append(Producto(
-                item["title"],
-                item["description"],
-                item["images"][0]["medium"],
-                item["price"],
-                item["supports_shipping"] and item["shipping_allowed"],
-                item["location"]["city"],
-                item["web_slug"]
-            ))
-        
-        # actualizamos el valor de la ultima id para que no vuelva a detectarlos
-        if ret:
-            first_id=r["search_objects"][0]["id"]
-            self._last_item_id = first_id
+            prod = self.strategy.isNotifiable(item)
+            if prod[0]:
+                ret.append(prod[1])
         
         return ret
 

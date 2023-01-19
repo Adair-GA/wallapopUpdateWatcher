@@ -6,6 +6,7 @@ import pickle
 from .query import Query
 import logging
 from asyncio import iscoroutinefunction
+from .strategies import OnlyNewStrategy, AnyChangeStrategy, PriceChangedStrategy, Strategy
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ class UpdateWatcher:
     # funcion que se llamará (con el id de la query que la ha activado y una lista de nuevos productos) cada vez
     # que se encuentren nuevos resultados
     callback: Callable
+    strategy: Strategy
 
     # contiene las queries a realizar    
     _queries_queue: deque[Query]
@@ -23,7 +25,7 @@ class UpdateWatcher:
     async def create(self,
                 keywords: str,
                 # lat_lon: tuple[int,int] | None = None,
-                min_max_sale_price: tuple[int,int] | None = None) -> Query:
+                min_max_sale_price: tuple[int | None ,int | None] | None = None) -> Query:
         """
         Añade la querie a la lista a comprobar y devuelve un objeto Query correspondiente a la misma
         **Parametros:**
@@ -47,7 +49,7 @@ class UpdateWatcher:
         else:
             min_sale_price,max_sale_price = None,None
 
-        q = Query(latitude,longitude,keywords,min_sale_price,max_sale_price)
+        q = Query(latitude,longitude,keywords,min_sale_price,max_sale_price, self.strategy)
         async with httpx.AsyncClient() as ses:
             await q.check(ses)
         self._queries_queue.append(q)
@@ -100,16 +102,26 @@ class UpdateWatcher:
         """
         self._queries_queue.remove(ident)
 
-    def __init__(self, callback: Callable) -> None:
+    def __init__(self, callback: Callable, strat: str = "new") -> None:
         """
         Crea un objeto UpdateWatcher que se encargara de comprobar las queries que se le pasen y llamar a la funcion cuando se encuentren nuevos productos
         **Parametros:**
 
         * **callback** -  La funcion que se llamara cada vez que se detecte un nuevo producto. Se le pasaran como parametros
         una lista de productos.
+        * **strat** - (opcional) La estrategia que se usara para alertar de nuevos productos: "new" (solo nuevos), "any" (cualquier cambio), "price" (solo cambio de precio)
         """
         self._queries_queue = deque()
         self._callback = callback
+
+        if strat == "new":
+            self.strategy = OnlyNewStrategy()
+        elif strat == "any":
+            self.strategy = AnyChangeStrategy()
+        elif strat == "price":
+            self.strategy = PriceChangedStrategy()
+        else:
+            raise ValueError("Invalid strategy")
 
     def __len__(self) -> int:
         return len(self._queries_queue)
