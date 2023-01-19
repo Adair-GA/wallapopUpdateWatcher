@@ -18,8 +18,6 @@ class Producto:
     def process_data(self):
         """Limita la descripcion a 60 caracteres y añade el link completo
         """
-        if self.description is not None and len(self.description)>60:
-            self.description = self.description[:60] + '...' 
 
         self.link = f"https://es.wallapop.com/item/{self.link}"
 
@@ -31,11 +29,14 @@ class Producto:
             str: mensaje
         """        
         envio = "Si" if self.shippable else "No"
+            
         
         if self.description is None:
             return f"Producto: {self.title}.\nPrecio: {self.price}€. Se envia: {envio}.\n{self.link}"
         else:
-            return f"Producto: {self.title}. Descripción: {self.description}.\nPrecio: {self.price}€. Se envia: {envio}.\n{self.link}"
+            description_short = self.description[:60] + '...' if len(self.description) > 60 else self.description
+            
+            return f"Producto: {self.title}. Descripción: {description_short}.\nPrecio: {self.price}€. Se envia: {envio}.\n{self.link}"
 
     def update(self, item: dict):
         """Actualiza los datos del producto con los de un item de la api de wallapop
