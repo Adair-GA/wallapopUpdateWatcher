@@ -20,7 +20,7 @@ class Strategy(ABC):
             d["supports_shipping"] and d["shipping_allowed"],
             d["location"]["city"],
             d["web_slug"])
-        self.alertados["id"] = p
+        self.alertados[d["id"]] = p
         return p
 
 class OnlyNewStrategy(Strategy):
@@ -45,8 +45,8 @@ class PriceChangedStrategy(Strategy):
 
             return True, p
         else:
-            if self.alertados["id"].price != d["price"]:
-                old = self.alertados["id"]
+            if self.alertados[d["id"]].price != d["price"]:
+                old = self.alertados[d["id"]]
                 old.update(d)
 
                 return True, old
@@ -63,10 +63,11 @@ class AnyChangeStrategy(Strategy):
 
             return True,p
         else:
-            old = self.alertados["id"]
-            if old.price != d["price"]:
-                old.update(d)
+            old = self.alertados[d["id"]]
+            new_p = Producto(d["id"],d["title"],d["description"],d["images"][0]["medium"],d["price"],d["supports_shipping"] and d["shipping_allowed"],d["location"]["city"],d["web_slug"])
+            if old != new_p:
+                self.alertados[d["id"]] = new_p
 
-                return True, old
+                return True, new_p
             else:
                 return False, None
