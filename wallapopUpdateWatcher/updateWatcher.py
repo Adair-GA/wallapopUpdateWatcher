@@ -59,19 +59,21 @@ class UpdateWatcher:
 
         Args:
             args * :Argumentos que se le pasaran a la funcion callback
-        """        
-        async with httpx.AsyncClient() as client:
-            q = self._queries_queue.popleft()
-            result = await q.check(client)
+        """ 
+        try:       
+            async with httpx.AsyncClient() as client:
+                q = self._queries_queue[0]
+                result = await q.check(client)
 
-        if result:
-            if iscoroutinefunction(self._callback):
-                await self._callback(q,result,*args)
-            else:
-                self._callback(q,result,*args)
-        
-        #se vuelve a añadir al final para que se vuelva a ciclar la lista completa antes de volver a comprobarse
-        self._queries_queue.append(q)
+            if result:
+                if iscoroutinefunction(self._callback):
+                    await self._callback(q,result,*args)
+                else:
+                    self._callback(q,result,*args)
+            
+        #se rota la queue para que la siguiente vez que se llame a checkOperation se compruebe la siguiente query
+        finally:
+            self._queries_queue.rotate(-1)
 
     def load_queries_from_file(self, path: Path):
         """Cargo las queries desde un archivo
