@@ -6,7 +6,7 @@ def test_producto_con_descripcion() -> None:
     assert p.msg() == "Producto: Test. Descripción: testDescription.\nPrecio: 50€. Se envia: Si.\nhttps://es.wallapop.com/item/test"
 
     p = Producto("aa","Test", "testDescription"*60, "imagelink", 50, True, "mad", "test")
-    assert p.description == ("testDescription"*60)[0:60] + "..."
+    assert p.description == "testDescription"*60
 
 
 def test_producto_sin_descripcion() -> None:
