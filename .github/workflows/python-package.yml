@@ -31,10 +31,8 @@ jobs:
       
     - name: Poetry install dependencies
       run: |
-        poetry install --no-interaction --no-root
-    - name: Poetry install package
-      run: |
-        poetry install --no-interaction 
+        poetry config virtualenvs.create false
+        poetry install --no-interaction --with test
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
