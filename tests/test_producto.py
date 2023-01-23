@@ -1,4 +1,4 @@
-from wallapopUpdateWatcher import Producto
+from . import Producto
 
 def test_producto_con_descripcion() -> None:
     p = Producto("aa","Test", "testDescription", "imagelink", 50, True, "mad", "test")

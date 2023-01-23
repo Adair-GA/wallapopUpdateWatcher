@@ -23,37 +23,35 @@ class UpdateWatcher:
 
     async def create(self,
                 keywords: str,
-                # lat_lon: tuple[int,int] | None = None,
+                strat: str = "price",
+                *_,
+                lat_lon: tuple[float,float] | None = None,
                 min_max_sale_price: tuple[int | None ,int | None] | None = None,
-                strat: str = "") -> Query:
+                ) -> Query:
         """
         Añade la querie a la lista a comprobar y devuelve un objeto Query correspondiente a la misma
         **Parametros:**
 
         * **keywords** -  Palabras que usar en la busqueda
+        * **lat_lon** -  Palabras que usar en la busqueda
         * **min_max_sale_price** - (opcional) Precio minimo y maximo (tuple de enteros)
-        * **strat** - La estrategia que se usara para alertar de nuevos productos: "new" (solo nuevos), "any" (cualquier cambio), "price" (solo cambio de precio)
+        * **strat** - La estrategia que se usara para alertar de nuevos productos: "new" (solo nuevos), "any" (cualquier cambio), "price" (default) (solo cambio de precio)
         """
-
-        # if not lat_lon:
-            # latitude="40.41956"
-            # longitude= "-3.69196"
-        # else:
-        #     latitude,longitude = map(str,lat_lon)
 
         if strat == "new":
             strategy = OnlyNewStrategy()
         elif strat == "any":
             strategy = AnyChangeStrategy()
-        elif strat == "price" or strat == "":
+        elif strat == "price":
             strategy = PriceChangedStrategy()
         else:
             raise ValueError("Invalid strategy")
 
-
-        latitude="40.41956"
-        longitude= "-3.69196"
-
+        if lat_lon:
+            latitude,longitude = map(str,lat_lon)
+        else:   
+            latitude="40.41956"
+            longitude= "-3.69196"
 
         if min_max_sale_price:
             min_sale_price,max_sale_price = min_max_sale_price
@@ -67,18 +65,21 @@ class UpdateWatcher:
 
         return q
 
+
     async def checkOperation(self, *args):
         """Comprueba si hay nuevos resultados para la siguiente query en la lista.
 
         Args:
-            args * :Argumentos que se le pasaran a la funcion callback
+            args * :(opcional) Argumentos que se le pasaran a la funcion callback
         """ 
+        logger.info("Checking for new products") 
         try:       
             async with httpx.AsyncClient() as client:
                 q = self._queries_queue[0]
                 result = await q.check(client)
 
             if result:
+                logger.info(f"New products found for query {q}")
                 if iscoroutinefunction(self._callback):
                     await self._callback(q,result,*args)
                 else:

@@ -1,5 +1,4 @@
-from wallapopUpdateWatcher import UpdateWatcher,Query
-import httpx
+from . import UpdateWatcher,Query
 import pytest
 from pytest_httpx import HTTPXMock
 import re
@@ -39,7 +38,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
     
     watcher = UpdateWatcher(print)
     assert len(watcher) == 0
-    q = await watcher.create("Test",None)
+    q = await watcher.create("Test")
 
     assert q.keywords=="Test"
     assert q.max_sale_price==None
@@ -49,20 +48,20 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
 
     # comprobar precios
 
-    q = await watcher.create("Test2",(15,30))
+    q = await watcher.create("Test2", min_max_sale_price=(15,30))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
     assert q.max_sale_price==30
 
 
-    q = await watcher.create("Test2",(None,30))
+    q = await watcher.create("Test2",min_max_sale_price=(None,30))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==None
     assert q.max_sale_price==30
     
-    q = await watcher.create("Test2",(15,None))
+    q = await watcher.create("Test2",min_max_sale_price=(15,None))
 
     assert q.keywords=="Test2"
     assert q.min_sale_price==15
@@ -75,7 +74,7 @@ async def test_updateWatcher_create(httpx_mock: HTTPXMock):
 
     add(res,1)
     httpx_mock.add_response(200,json=res, url=pat)
-    q = await watcher.create("Test2",None)
+    q = await watcher.create("Test2")
 
     assert q.keywords=="Test2"
     assert q.max_sale_price==None
@@ -86,7 +85,7 @@ async def test_updateWatcher_remove():
     watcher = UpdateWatcher(print)
     assert len(watcher)==0
 
-    q = await watcher.create("Test",None)
+    q = await watcher.create("Test")
     assert len(watcher)==1
     assert q in watcher._queries_queue
 
@@ -122,8 +121,8 @@ async def test_updateWatcher_check(httpx_mock: HTTPXMock):
 
     watcher = UpdateWatcher(callback)
 
-    q1 = await watcher.create("Test1",None)
-    q2 = await watcher.create("Test2",None)
+    q1 = await watcher.create("Test1")
+    q2 = await watcher.create("Test2")
 
     add(res_1,1)
     httpx_mock.add_response(200,json=res_1, url=pattern_1)
@@ -162,7 +161,7 @@ async def test_updateWatcher_save_and_load(httpx_mock: HTTPXMock):
     
     watcher = UpdateWatcher(print)
     assert len(watcher) == 0
-    await watcher.create("Test",None)
+    await watcher.create("Test")
     assert len(watcher) == 1
     watcher.save_queries(p)
     assert p.exists()
@@ -183,7 +182,7 @@ async def test_updateWatcher_save_and_load(httpx_mock: HTTPXMock):
     assert q.max_sale_price==None
 
 
-    await watcher.create("Test2",None)
+    await watcher.create("Test2")
     await watcher.checkOperation()
     await watcher.checkOperation()
     await watcher.checkOperation()
