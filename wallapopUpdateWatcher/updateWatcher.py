@@ -10,6 +10,7 @@ from .strategies import OnlyNewStrategy, AnyChangeStrategy, PriceChangedStrategy
 
 logger = logging.getLogger(__name__)
 
+
 class UpdateWatcher:
     """Clase que se encarga de facilitar la comparacion de resultados de busquedas en wallapop, para detectar nuevos productos que se hayan añadido
     Esto es util para poder detectr productos baratos a tiempo, ya que las notificaciones de wallapop no funcionan bien
@@ -22,12 +23,12 @@ class UpdateWatcher:
     _queries_queue: deque[Query]
 
     async def create(self,
-                keywords: str,
-                strat: str = "price",
-                *_,
-                lat_lon: tuple[float,float] | None = None,
-                min_max_sale_price: tuple[int | None ,int | None] | None = None,
-                ) -> Query:
+                     keywords: str,
+                     strat: str = "price",
+                     *_,
+                     lat_lon: tuple[float, float] | None = None,
+                     min_max_sale_price: tuple[int | None, int | None] | None = None,
+                     ) -> Query:
         """
         Añade la querie a la lista a comprobar y devuelve un objeto Query correspondiente a la misma
         **Parametros:**
@@ -48,32 +49,31 @@ class UpdateWatcher:
             raise ValueError("Invalid strategy")
 
         if lat_lon:
-            latitude,longitude = map(str,lat_lon)
-        else:   
-            latitude="40.41956"
-            longitude= "-3.69196"
+            latitude, longitude = map(str, lat_lon)
+        else:
+            latitude = "40.41956"
+            longitude = "-3.69196"
 
         if min_max_sale_price:
-            min_sale_price,max_sale_price = min_max_sale_price
+            min_sale_price, max_sale_price = min_max_sale_price
         else:
-            min_sale_price,max_sale_price = None,None
+            min_sale_price, max_sale_price = None, None
 
-        q = Query(latitude,longitude,keywords,min_sale_price,max_sale_price, strategy)
+        q = Query(latitude, longitude, keywords, min_sale_price, max_sale_price, strategy)
         async with httpx.AsyncClient() as ses:
             await q.check(ses)
         self._queries_queue.append(q)
 
         return q
 
-
     async def checkOperation(self, *args):
         """Comprueba si hay nuevos resultados para la siguiente query en la lista.
 
         Args:
             args * :(opcional) Argumentos que se le pasaran a la funcion callback
-        """ 
-        logger.info("Checking for new products") 
-        try:       
+        """
+        logger.info("Checking for new products")
+        try:
             async with httpx.AsyncClient() as client:
                 q = self._queries_queue[0]
                 result = await q.check(client)
@@ -81,11 +81,11 @@ class UpdateWatcher:
             if result:
                 logger.info(f"New products found for query {q}")
                 if iscoroutinefunction(self._callback):
-                    await self._callback(q,result,*args)
+                    await self._callback(q, result, *args)
                 else:
-                    self._callback(q,result,*args)
-            
-        #se rota la queue para que la siguiente vez que se llame a checkOperation se compruebe la siguiente query
+                    self._callback(q, result, *args)
+
+        # se rota la queue para que la siguiente vez que se llame a checkOperation se compruebe la siguiente query
         finally:
             self._queries_queue.rotate(-1)
 
@@ -105,8 +105,8 @@ class UpdateWatcher:
             path (Path): Path del archivo
         """
         path.touch(exist_ok=True)
-        with open(path,"wb") as f:
-            pickle.dump(self._queries_queue,f)
+        with open(path, "wb") as f:
+            pickle.dump(self._queries_queue, f)
 
     def remove(self, ident: Query):
         """Elimina una query de la lista de queries a comprobar

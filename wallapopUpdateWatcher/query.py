@@ -1,4 +1,4 @@
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
 from typing import Optional
 import httpx
 from .producto import Producto
@@ -22,6 +22,7 @@ HEADERS = {
     "sec-ch-ua-platform": "\"Windows\"",
 }
 
+
 @dataclass
 class Query:
     latitude: str
@@ -31,7 +32,6 @@ class Query:
     max_sale_price: Optional[int]
     strategy: Strategy
 
-
     async def check(self, ses: httpx.AsyncClient) -> list[Producto]:
         """Comprueba si hay nuevos resultados para la query.
 
@@ -40,24 +40,24 @@ class Query:
 
         Returns:
             list[Producto]: Lista de productos nuevos que se encuentren para la query
-        """        
+        """
         r = await ses.request("GET", URL, headers=HEADERS, params=self._build_params())
         r = r.json()
 
         ret = []
         for item in r["search_objects"]:
-            prod = self.strategy.isNotifiable(item)
+            prod = self.strategy.is_notifiable(item)
             if prod[0]:
                 ret.append(prod[1])
-        
+
         return ret
 
-    def _build_params(self)->dict:
+    def _build_params(self) -> dict:
         """Construye los parametros para la peticion de la query
 
         Returns:
             dict: Diccionario con los parametros
-        """        
+        """
         p = {
             "latitude": self.latitude,
             "longitude": self.longitude,
@@ -66,12 +66,12 @@ class Query:
             "country_code": "ES",
             "filters_source": "search_box"
         }
-        
+
         if self.min_sale_price:
             p["min_sale_price"] = str(self.min_sale_price)
         if self.max_sale_price:
             p["max_sale_price"] = str(self.max_sale_price)
-        
+
         return p
 
     def __hash__(self):

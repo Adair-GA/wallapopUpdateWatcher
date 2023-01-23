@@ -3,43 +3,45 @@ from wallapopUpdateWatcher.producto import Producto
 
 
 class Strategy(ABC):
-    alertados: dict[str,Producto]
+    alertados: dict[str, Producto]
 
     def __init__(self):
         self.alertados = dict()
 
-    def isNotifiable(self, d: dict) -> tuple[bool,Producto|None]:
+    def is_notifiable(self, d: dict) -> tuple[bool, Producto | None]:
         raise NotImplementedError
 
     def _add(self, d) -> Producto:
         p = Producto(d["id"],
-            d["title"],
-            d["description"],
-            d["images"][0]["medium"],
-            d["price"],
-            d["supports_shipping"] and d["shipping_allowed"],
-            d["location"]["city"],
-            d["web_slug"])
+                     d["title"],
+                     d["description"],
+                     d["images"][0]["medium"],
+                     d["price"],
+                     d["supports_shipping"] and d["shipping_allowed"],
+                     d["location"]["city"],
+                     d["web_slug"])
         self.alertados[d["id"]] = p
         return p
+
 
 class OnlyNewStrategy(Strategy):
     def __init__(self):
         super().__init__()
 
-    def isNotifiable(self, d: dict) -> tuple[bool,Producto|None]:
+    def is_notifiable(self, d: dict) -> tuple[bool, Producto | None]:
         if d["id"] not in self.alertados:
             p = self._add(d)
 
-            return True, p 
+            return True, p
         else:
             return False, None
-        
+
+
 class PriceChangedStrategy(Strategy):
     def __init__(self):
         super().__init__()
 
-    def isNotifiable(self, d: dict) -> tuple[bool,Producto|None]:
+    def is_notifiable(self, d: dict) -> tuple[bool, Producto | None]:
         if d["id"] not in self.alertados:
             p = self._add(d)
 
@@ -53,18 +55,20 @@ class PriceChangedStrategy(Strategy):
             else:
                 return False, None
 
+
 class AnyChangeStrategy(Strategy):
     def __init__(self):
         super().__init__()
 
-    def isNotifiable(self, d: dict) -> tuple[bool,Producto|None]:
+    def is_notifiable(self, d: dict) -> tuple[bool, Producto | None]:
         if d["id"] not in self.alertados:
             p = self._add(d)
 
-            return True,p
+            return True, p
         else:
             old = self.alertados[d["id"]]
-            new_p = Producto(d["id"],d["title"],d["description"],d["images"][0]["medium"],d["price"],d["supports_shipping"] and d["shipping_allowed"],d["location"]["city"],d["web_slug"])
+            new_p = Producto(d["id"], d["title"], d["description"], d["images"][0]["medium"], d["price"],
+                             d["supports_shipping"] and d["shipping_allowed"], d["location"]["city"], d["web_slug"])
             if old != new_p:
                 self.alertados[d["id"]] = new_p
 
