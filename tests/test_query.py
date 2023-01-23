@@ -1,8 +1,8 @@
-from wallapopUpdateWatcher import Query
+from . import Query
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
-from wallapopUpdateWatcher.strategies import *
+from wallapopUpdateWatcher.strategies import AnyChangeStrategy, PriceChangedStrategy, OnlyNewStrategy
 import re
 
 def test_query_build_params():
