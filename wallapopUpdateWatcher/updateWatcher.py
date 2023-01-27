@@ -79,7 +79,7 @@ class UpdateWatcher:
                 result = await q.check(client)
 
             if result:
-                logger.info(f"New products found for query {q}")
+                logger.info("New products found for query %s", q)
                 if iscoroutinefunction(self._callback):
                     await self._callback(q, result, *args)
                 else:

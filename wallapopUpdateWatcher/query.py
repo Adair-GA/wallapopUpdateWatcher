@@ -86,3 +86,10 @@ class Query:
                 return hash(f"walla{self.keywords}{self.min_sale_price}{self.strategy.__class__.__name__}")
             else:
                 return hash(f"walla{self.keywords}{self.strategy.__class__.__name__}")
+
+
+    def __eq__(self, other):
+        if isinstance(other, Query):
+            return self.__hash__() == other.__hash__()
+        else:
+            return False
