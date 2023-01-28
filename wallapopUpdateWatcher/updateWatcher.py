@@ -1,19 +1,21 @@
-from typing import Callable
+from typing import Callable, Any
 import httpx
 from collections import deque
 from pathlib import Path
 import pickle
+from . import Producto
 from .query import Query
 import logging
 from asyncio import iscoroutinefunction
-from .strategies import OnlyNewStrategy, AnyChangeStrategy, PriceChangedStrategy, Strategy
+from .strategies import OnlyNewStrategy, AnyChangeStrategy, PriceChangedStrategy
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("wallapopUpdateWatcher")
 
 
 class UpdateWatcher:
-    """Clase que se encarga de facilitar la comparacion de resultados de busquedas en wallapop, para detectar nuevos productos que se hayan añadido
-    Esto es util para poder detectr productos baratos a tiempo, ya que las notificaciones de wallapop no funcionan bien
+    """Clase que se encarga de facilitar la comparacion de resultados de busquedas en wallapop, para detectar nuevos
+    productos que se hayan añadido Esto es util para poder detectr productos baratos a tiempo, ya que las
+    notificaciones de wallapop no funcionan bien
     """
     # funcion que se llamará (con el id de la query que la ha activado y una lista de nuevos productos) cada vez
     # que se encuentren nuevos resultados
@@ -25,7 +27,7 @@ class UpdateWatcher:
     async def create(self,
                      keywords: str,
                      strat: str = "price",
-                     *_,
+                     *,
                      lat_lon: tuple[float, float] | None = None,
                      min_max_sale_price: tuple[int | None, int | None] | None = None,
                      ) -> Query:
@@ -33,10 +35,10 @@ class UpdateWatcher:
         Añade la querie a la lista a comprobar y devuelve un objeto Query correspondiente a la misma
         **Parametros:**
 
-        * **keywords** -  Palabras que usar en la busqueda
-        * **lat_lon** -  Palabras que usar en la busqueda
-        * **min_max_sale_price** - (opcional) Precio minimo y maximo (tuple de enteros)
-        * **strat** - La estrategia que se usara para alertar de nuevos productos: "new" (solo nuevos), "any" (cualquier cambio), "price" (default) (solo cambio de precio)
+        * **keywords** -  Palabras que usar en la busqueda * **lat_lon** -  Palabras que usar en la busqueda *
+        **min_max_sale_price** - (opcional) Precio minimo y maximo (tuple de enteros) * **strat** - La estrategia que
+        se usara para alertar de nuevos productos: "new" (solo nuevos), "any" (cualquier cambio), "price" (default)
+        (solo cambio de precio)
         """
 
         if strat == "new":
@@ -68,9 +70,11 @@ class UpdateWatcher:
 
     async def checkOperation(self, *args):
         """Comprueba si hay nuevos resultados para la siguiente query en la lista.
-
-        Args:
-            args * :(opcional) Argumentos que se le pasaran a la funcion callback
+        Si los hay, llama a la funcion callback con los nuevos resultados como parametro, ademas de los parametros que
+        se le pasen a esta funcion.
+        Parameters
+        ----------
+        args
         """
         logger.info("Checking for new products")
         try:
@@ -89,11 +93,11 @@ class UpdateWatcher:
         finally:
             self._queries_queue.rotate(-1)
 
-    def load_queries_from_file(self, path: Path):
-        """Cargo las queries desde un archivo
-
+    def load_queries_from_file(self, path: Path | str):
+        """Carga las queries desde un archivo
+        
         Args:
-            path (Path): Path del archivo a cargar
+            path (Path): Ruta del archivo a cargar
         """
         with open(path, "rb") as f:
             self._queries_queue = pickle.load(f)
@@ -101,7 +105,7 @@ class UpdateWatcher:
     def save_queries(self, path: Path):
         """Guarda las queries en un archivo
 
-        Args:
+
             path (Path): Path del archivo
         """
         path.touch(exist_ok=True)
@@ -116,13 +120,15 @@ class UpdateWatcher:
         """
         self._queries_queue.remove(ident)
 
-    def __init__(self, callback: Callable, strat: str = "new") -> None:
+    def __init__(self, callback: Callable[[Query, list[Producto], *Any], None]) -> None:
         """
-        Crea un objeto UpdateWatcher que se encargara de comprobar las queries que se le pasen y llamar a la funcion cuando se encuentren nuevos productos
+        Crea un objeto UpdateWatcher que se encargara de comprobar las queries que se le pasen y llamar a la funcion
+        cuando se encuentren nuevos productos.
+
         **Parametros:**
 
-        * **callback** -  La funcion que se llamara cada vez que se detecte un nuevo producto. Se le pasaran como parametros
-        una lista de productos.
+        * **callback** -  La funcion que se llamara cada vez que se detecte un nuevo producto. Se le pasaran como
+        parametros una lista de productos.
 
         """
         self._queries_queue = deque()
