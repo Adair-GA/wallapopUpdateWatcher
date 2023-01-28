@@ -25,12 +25,12 @@ HEADERS = {
 
 @dataclass
 class Query:
-    latitude: str
-    longitude: str
+    latitude: str = field(repr=False)
+    longitude: str = field(repr=False)
     keywords: str
     min_sale_price: Optional[int]
     max_sale_price: Optional[int]
-    strategy: Strategy
+    strategy: Strategy = field(repr=False)
 
     async def check(self, ses: httpx.AsyncClient) -> list[Producto]:
         """Comprueba si hay nuevos resultados para la query.
@@ -86,7 +86,6 @@ class Query:
                 return hash(f"walla{self.keywords}{self.min_sale_price}{self.strategy.__class__.__name__}")
             else:
                 return hash(f"walla{self.keywords}{self.strategy.__class__.__name__}")
-
 
     def __eq__(self, other):
         if isinstance(other, Query):
