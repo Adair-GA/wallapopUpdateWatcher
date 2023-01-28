@@ -14,10 +14,10 @@ class Producto:
     link: str
 
     def __post_init__(self) -> None:
-        self.process_data()
+        self._process_data()
 
-    def process_data(self):
-        """Limita la descripcion a 60 caracteres y añade el link completo
+    def _process_data(self):
+        """Añade el link completo
         """
 
         self.link = f"https://es.wallapop.com/item/{self.link}"
@@ -37,7 +37,7 @@ class Producto:
 
             return f"Producto: {self.title}. Descripción: {description_short}.\nPrecio: {self.price}€. Se envia: {envio}.\n{self.link}"
 
-    def update(self, item: dict):
+    def _update(self, item: dict):
         """Actualiza los datos del producto con los de un item de la api de wallapop
 
         Args:
@@ -51,7 +51,7 @@ class Producto:
         self.city = item["location"]["city"]
         self.link = item["web_slug"]
 
-        self.process_data()
+        self._process_data()
 
     def __hash__(self) -> int:
         return hash(self.ident)
