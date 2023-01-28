@@ -219,14 +219,14 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "pytest"
-version = "7.2.0"
+version = "7.2.1"
 description = "pytest: simple powerful testing with Python"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.2.0-py3-none-any.whl", hash = "sha256:892f933d339f068883b6fd5a459f03d85bfcb355e4981e146d2c7616c21fef71"},
-    {file = "pytest-7.2.0.tar.gz", hash = "sha256:c4014eb40e10f11f355ad4e3c2fb2c6c6d1919c73f3b5a433de4708202cade59"},
+    {file = "pytest-7.2.1-py3-none-any.whl", hash = "sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5"},
+    {file = "pytest-7.2.1.tar.gz", hash = "sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42"},
 ]
 
 [package.dependencies]
@@ -262,19 +262,19 @@ testing = ["coverage", "hypothesis (>=5.7.1)"]
 
 [[package]]
 name = "pytest-httpx"
-version = "0.21.2"
+version = "0.21.3"
 description = "Send responses to httpx."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest_httpx-0.21.2-py3-none-any.whl", hash = "sha256:a6ea51ab4e603507b4e91ac868e62c8a40dde85ded9f5dd71d6e29b0e8d5a217"},
-    {file = "pytest_httpx-0.21.2.tar.gz", hash = "sha256:39596a2caa7aeb384de7f1cf134bcc4595177a449af7d0fc9bd5916cad515464"},
+    {file = "pytest_httpx-0.21.3-py3-none-any.whl", hash = "sha256:50b52b910f6f6cfb0aa65039d6f5bedb6ae3a0c02a98c4a7187543fe437c428a"},
+    {file = "pytest_httpx-0.21.3.tar.gz", hash = "sha256:edcb62baceffbd57753c1a7afc4656b0e71e91c7a512e143c0adbac762d979c1"},
 ]
 
 [package.dependencies]
 httpx = ">=0.23.0,<0.24.0"
-pytest = ">=6,<8"
+pytest = ">=6.0,<8.0"
 
 [package.extras]
 testing = ["pytest-asyncio (>=0.20.0,<0.21.0)", "pytest-cov (>=4.0.0,<5.0.0)"]
@@ -335,18 +335,18 @@ files = [
 
 [[package]]
 name = "zipp"
-version = "3.11.0"
+version = "3.12.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "zipp-3.11.0-py3-none-any.whl", hash = "sha256:83a28fcb75844b5c0cdaf5aa4003c2d728c77e05f5aeabe8e95e56727005fbaa"},
-    {file = "zipp-3.11.0.tar.gz", hash = "sha256:a7a22e05929290a67401440b39690ae6563279bced5f314609d9d03798f56766"},
+    {file = "zipp-3.12.0-py3-none-any.whl", hash = "sha256:9eb0a4c5feab9b08871db0d672745b53450d7f26992fd1e4653aa43345e97b86"},
+    {file = "zipp-3.12.0.tar.gz", hash = "sha256:73efd63936398aac78fd92b6f4865190119d6c91b531532e798977ea8dd402eb"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)"]
+docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
 testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [metadata]

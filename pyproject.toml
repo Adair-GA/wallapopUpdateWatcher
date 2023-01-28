@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "wallapopUpdateWatcher"
-version = "0.1.1"
+version = "0.1.2"
 description = "A library to watch for new items at wallapop.es"
 authors = ["Adair-GA <adairyves@gmail.com>"]
 license = "GNU General Public License v3 (GPLv3)"
