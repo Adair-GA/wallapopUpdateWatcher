@@ -4,6 +4,30 @@ from typing import Optional
 
 @dataclass(repr=False)
 class Producto:
+    """A class used to represent a product
+
+    Attributes
+    ----------
+    title : str
+        the title of the product
+    description : str | None
+        the description of the product (can be None)
+    image : str
+        the url of the image of the product
+    price : int
+        product price
+    shippable : bool
+        if the product can be shipped
+    city : str
+        the city where the product is located
+    link : str
+        the link to the product
+
+    Methods
+    -------
+    msg() -> str
+        Generates the message that will be sent to the user to alert him of a new product
+    """
     ident: str
     title: str
     description: Optional[str]
