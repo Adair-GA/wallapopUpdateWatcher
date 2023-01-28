@@ -49,7 +49,7 @@ class PriceChangedStrategy(Strategy):
         else:
             if self.alertados[d["id"]].price != d["price"]:
                 old = self.alertados[d["id"]]
-                old.update(d)
+                old._update(d)
 
                 return True, old
             else:

@@ -30,10 +30,10 @@ def test_producto_update() -> None:
         "web_slug": "test"
     }
     
-    p.update(d)
+    p._update(d)
     assert p.msg() == "Producto: Test2.\nPrecio: 50€. Se envia: Si.\nhttps://es.wallapop.com/item/test"
 
     d["description"] = "testDescription"
 
-    p.update(d)
+    p._update(d)
     assert p.description=="testDescription"
