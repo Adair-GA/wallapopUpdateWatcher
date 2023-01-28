@@ -120,7 +120,7 @@ class UpdateWatcher:
         """
         self._queries_queue.remove(ident)
 
-    def __init__(self, callback: Callable[[Query, list[Producto], *Any], None]) -> None:
+    def __init__(self, callback: Callable[[Query, list[Producto]], None]) -> None:
         """
         Crea un objeto UpdateWatcher que se encargara de comprobar las queries que se le pasen y llamar a la funcion
         cuando se encuentren nuevos productos.
